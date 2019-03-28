@@ -9,44 +9,51 @@ int checkFour(char *board, int, int, int, int);
 int horizontalCheck(char *board, int, int);
 int verticalCheck(char *board, int, int);
 int diagonalCheck(char *board, int, int);
-const int BOARD_ROWS = 6;
-const int BOARD_COLS = 7;
 
 int main(int argc, char *argv[]){
     int columns = 0;
     int rows = 0;
-   printf("How many columns on the board (standard is 7):");
-   scanf("%d", &columns);
-   printf("How many rows on the board (standard is 6):");
-   scanf("%d", &rows);
+    int turn, done = 0;
+    int cont = 1;
+   
+    while (columns < 4) {
+        printf("How many columns on the board (at least 4):");
+        scanf("%d", &columns);
 
-   printf("%d %d", columns, rows);
+    }
 
-   const char *PIECES = "XO";
-   char board[rows * columns];
-   memset(board, ' ', rows * columns);
+    while (rows < 4) {
+        printf("How many rows on the board (at least 4):");
+        scanf("%d", &rows); 
+    }
 
-   int turn, done = 0;
+    const char *PIECES = "XO";
+    char board[rows * columns];
+    memset(board, ' ', rows * columns);
 
-   for(turn = 0; turn < rows * columns && !done; turn++){
-      printBoard(board, rows, columns);   
-      while(!takeTurn(board, turn % 2, rows, columns, PIECES)){
-         printBoard(board, rows, columns);   
-         printf("**Column full!**\n");
-      }
-      done = checkWin(board, rows, columns);
-   } 
-   printBoard(board, rows, columns);
+    while (cont == 1) {
+        for(turn = 0; turn < rows * columns && !done; turn++){
+            printBoard(board, rows, columns);   
+            while(!takeTurn(board, turn % 2, rows, columns, PIECES)){
+            printBoard(board, rows, columns);   
+            printf("**Column full!**\n");
+            }
+        done = checkWin(board, rows, columns);
+        } 
+        printBoard(board, rows, columns);
 
-   if(turn == rows * columns && !done){
-      printf("It's a tie!");
-   } else {
-      turn--;
-      printf("Player %d (%c) wins!\n", turn % 2 + 1, PIECES[turn % 2]);
-   }
+        if(turn == rows * columns && !done)
+            printf("It's a tie!");
+        else {
+            turn--;
+            printf("Player %d (%c) wins!\n", turn % 2 + 1, PIECES[turn % 2]);
+        }
 
-   return 0;
+        printf("Continue Playing?\n1. Yes\n2. No\n");
+        scanf("%d", &cont);
+    }
 
+    return 0;
 }
 void printBoard(char *board, int r, int c){
    system("clear");
@@ -65,7 +72,10 @@ void printBoard(char *board, int r, int c){
    }
    printf("  1");
    for (int i = 1; i < c; i++) {
-       printf("   %d", i+1);
+       if (i >= 9)
+           printf("  %d", i+1);
+       else
+        printf("   %d", i+1);
    }
    printf("\n");
 
