@@ -16,6 +16,7 @@ int main(int argc, char *argv[]){
     int columns = 0;
     int rows = 0;
     int choice = 0;
+    
    
     while (columns < 4) {
         printf("How many columns on the board (at least 4):");
@@ -139,6 +140,9 @@ void printBoard(char *board, int r, int c){
    }
    printf("\n");
 
+   for(int index = 0; index < r * c; index++){
+        printf("%c ", board[index]);
+   }
 }
 
 int takeTurn(char *board, int player, int r, int c, const char *PIECES){
@@ -221,6 +225,19 @@ int diagonalCheck(char *board, int r, int c){
     }
    return 0;
 
+}
+
+void syncTables(int **board, char **b, int c, int r) {
+    for (int i = 0; i < c; i++) {
+        for (int j = 0; j < r; j++) {
+            if(b[i][j] = 'X')
+                board [i][j] = 1;
+            else if (b[i][j] = 'O') 
+                board [i][j] = 2;
+            else
+                board[i][j] = 0;
+        }
+    }
 }
 
 void clearScreen() {

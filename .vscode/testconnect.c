@@ -3,14 +3,16 @@
 #include <stdlib.h>
 
 void initBoard(int **board, int, int);
-void printBoard(int **board, int, int);
+void playVsPlay(int **board, int, int);
 int colFree(int **board, int);
 int playTurn(int **board, int, int, int, int *changed);
 int removeTop(int **board, int, int, int *changed);
 int isWin(int **board, int, int, int *changed);
 int isFull(int **board, int, int);
 int minMax(int **board, int, int, int *changed, int, int);
-
+void printBoard(char **board, int , int);
+void syncTables(int **board, char **b, int, int);
+void printb(int **board, int, int);
 
 
 
@@ -20,6 +22,7 @@ int main(int argc, char *argv[]){
     int changed = 0;
     int player1 = 1;
     int player2 = 2;
+    int choice = 0;
     
     
     
@@ -42,8 +45,13 @@ int main(int argc, char *argv[]){
         score[i] = (int *)malloc(2 * sizeof(int));
     initBoard(board, columns, rows);
 
-    if (playTurn(board, 1, 0, rows, &changed)) {
-        printf("test");
+    while (choice != 3) {
+        printf("Choose Game Mode:\n1. Player vs. Player\n2. Player vs. Computer\n3. Exit\n");
+        scanf("%d", &choice);
+        if (choice == 1)
+            playVsPlay(board, rows, columns);
+        //if (choice == 2)
+            //playVsComp(board, rows, columns);
     }
 
     for (int i = 0; i < columns; i++) {
@@ -79,11 +87,75 @@ void initBoard(int **board, int c, int r) {
     }
 }
 
-void printBoard(int **board, int c, int r) {
-    for (int i = 0; i < r; i++) {
-        for (int j = 0; j < c; j++) {
-            printf("%d ", board[i][j]);
+void playVsPlay(int **board, int rows, int columns){
+    const char *PIECES = "XO";
+    int cont = 1;
+    int turn = 0;
+    int done = 0;
+    int player = 0;
+    int changed = 0;
+    
+    char **b = (char **)malloc(columns * sizeof(char *));
+    for (int i = 0; i < columns; i++)
+        b[i] = (char *)malloc(rows * sizeof(char));
+
+    while (cont == 1) {
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < rows; j++)
+                b[i][j] == ' ';
         }
+
+        for(turn = 0; turn < rows * columns && !done; turn++){
+            syncTables(board, b, columns, rows);
+            printBoard(b, columns, rows);
+            
+                int col = 0;
+                printf("Player %d (%c):\nEnter column number: ", (turn % 2) + 1, PIECES[player]);
+
+                while(1){ 
+                    if(1 != scanf("%d", &col) || col < 1 || col > columns ){
+                        while(getchar() != '\n');
+                        printf("Number out of bounds! Try again.");
+                    } 
+                    else 
+                        break;
+                }
+                col--;
+                if (!playTurn(board, ((turn % 2) + 1), col, rows, &changed)) {
+                    syncTables(board, b, columns, rows);
+                    printBoard(b, columns, rows);   
+                    printf("**Column full!**\n");
+                    continue;
+                }
+                printb(board, columns, rows);
+            
+            done = isWin(board, columns, rows, &changed);
+            
+        } 
+        syncTables(board, b, columns, rows);
+        printBoard(b, rows, columns);
+
+        if(turn == rows * columns && !done)
+            printf("It's a tie!\n");
+        else {
+            turn--;
+            printf("Player %d (%c) wins!\n", turn % 2 + 1, PIECES[turn % 2]);
+        }
+
+        printf("Continue Playing Player vs. Player mode?\n1. Yes\n2. No\n");
+        scanf("%d", &cont);
+        turn = 0;
+        done = 0;
+    }
+   
+}
+
+void printb(int **board, int c, int r) {
+    for(int col = 0; col < c; col++){
+        for(int row = 0; row < r; row++){
+            printf("%d ",  board[col][row]);
+        }
+        printf("\n");
     }
 }
 
@@ -97,12 +169,13 @@ int colFree(int **board, int column) {
 
 int playTurn(int **board, int player, int column, int r, int *changed) {
     int row = 0;
+    
     while (row < r && board[column][row] == 0) {
         row++;
     }
     if (row == 0)
         return 0; //return false
-    board[column][row] = player;
+    board[row - 1][column] = player;
     *changed = 1;
     return 1; //return true
 }
@@ -224,4 +297,43 @@ int minMax(int **board, int c, int r, int *changed, int depth, int maxiPlayer) {
         removeTop(board, i, r, changed);
     }
     return bestVal;
+}
+void printBoard(char **b, int c, int r){
+    system("clear");
+    printf("\n    ****Connect Four****\n");
+
+    for(int row = 0; row < r; row++){
+        for(int col = 0; col < c; col++){
+            printf("| %c ",  b[col][row]);
+        }
+        printf("|\n");
+        printf("-");
+        for (int i = 0; i < c; i++) {
+            printf("----");
+        }
+        printf("\n");
+    }
+
+    printf("  1");
+    for (int i = 1; i < c; i++) {
+        if (i >= 9)
+            printf("  %d", i+1);
+        else
+            printf("   %d", i+1);
+   }
+   printf("\n");
+
+}
+
+void syncTables(int **board, char **b, int c, int r) {
+    for (int i = 0; i < c; i++) {
+        for (int j = 0; j < r; j++) {
+            if(board[i][j] == 1)
+                b[i][j] = 'X';
+            else if (board[i][j] == 2) 
+                b[i][j] = 'O';
+            else
+                b[i][j] = ' ';
+        }
+    }
 }
