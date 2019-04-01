@@ -175,7 +175,7 @@ int playTurn(int **board, int player, int column, int r, int *changed) {
     }
     if (row == 0)
         return 0; //return false
-    board[row - 1][column] = player;
+    board[row][column] = player;
     *changed = 1;
     return 1; //return true
 }
@@ -198,17 +198,17 @@ int isWin(int **board, int c, int r, int *changed) {
     }
 
     *changed = 0;
-    for (int i = 0; i < c; i++) {
-        for (int j = 0; j < r; j++) {
+    for (int i = 0; i < r; i++) {
+        for (int j = 0; j < c; j++) {
             if (board[i][j] == 0)
                 continue;
             
             int hor = 0;
             int vert = 0;
 
-            if ((i + 3) < c)
+            if ((i + 3) < r)
                 hor = 1;
-            if ((j + 3) < r)
+            if ((j + 3) < c)
                 vert = 1;
 
             if (!(hor) && !(vert)) //checks vertical and horizontal
