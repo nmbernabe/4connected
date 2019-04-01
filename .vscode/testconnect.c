@@ -2,14 +2,25 @@
 #include <string.h>
 #include <stdlib.h>
 
-void initBoard(int **board, int *rowInd, int, int);
+void initBoard(int **board, int, int);
 void printBoard(int **board, int, int);
 int colFree(int **board, int);
+int playTurn(int **board, int, int, int, int *changed);
+int removeTop(int **board, int, int, int *changed);
+int isWin(int **board, int, int, int *changed);
+int isFull(int **board, int, int);
+int minMax(int **board, int, int, int *changed, int, int);
+
+
+
 
 int main(int argc, char *argv[]){
     int columns = 0;
     int rows = 0;
     int changed = 0;
+    int player1 = 1;
+    int player2 = 2;
+    
     
     
    
@@ -23,29 +34,48 @@ int main(int argc, char *argv[]){
         scanf("%d", &rows); 
     }
     
-    int **board = (int **)malloc((rows + 1) * sizeof(int *));
-    for (int i = 0; i < (rows + 1); i++)
-        board[i] = (int *)malloc((columns + 1) * sizeof(int));
-    int rowInd[columns + 1];
-    int **score = (int **)malloc(3 * sizeof(int *));
-    for (int i = 0; i < 3; i++)
-        board[i] = (int *)malloc((columns + 1) * sizeof(int));
-    initBoard(board, rowInd, columns, rows);
+    int **board = (int **)malloc(columns * sizeof(int *));
+    for (int i = 0; i < columns; i++)
+        board[i] = (int *)malloc(rows * sizeof(int));
+    int **score = (int **)malloc(columns * sizeof(int *));
+    for (int i = 0; i < columns; i++)
+        score[i] = (int *)malloc(2 * sizeof(int));
+    initBoard(board, columns, rows);
 
-    printBoard(board, rows, columns);
+    if (playTurn(board, 1, 0, rows, &changed)) {
+        printf("test");
+    }
+
+    for (int i = 0; i < columns; i++) {
+        if(!playTurn(board, player2, i, rows, &changed))
+            continue;
+        score[i][1] = minMax(board, columns, rows, &changed, 6, 0);
+        removeTop(board, i, rows, &changed);
+    }
+
+    int maxScore = score[0][1];
+    for (int k = 0; k < columns; k++) {
+        if (maxScore < score[k][1])
+            maxScore = score[k][1];
+    }
+
+     int index = 0;
+
+    while(score[index][1] != maxScore) {
+        index = (rand() % columns);
+    }
+
+    
+
 
     
 }
 
-void initBoard(int **board, int *rowInd, int c, int r) {
-    for (int i = 1; i <= r; i++) {
-        for (int j = 1; j <= c; j++) {
+void initBoard(int **board, int c, int r) {
+    for (int i = 0; i < c; i++) {
+        for (int j = 0; j < r; j++) {
             board[i][j] = 0;
         }
-    }
-
-    for (int k = 1; k <= c; k++) {
-        rowInd[k] = 1;
     }
 }
 
@@ -73,7 +103,7 @@ int playTurn(int **board, int player, int column, int r, int *changed) {
     if (row == 0)
         return 0; //return false
     board[column][row] = player;
-    changed = 1;
+    *changed = 1;
     return 1; //return true
 }
 
@@ -85,16 +115,16 @@ int removeTop(int **board, int column, int r, int *changed) {
     if (row == r) 
         return 0; //return false
     board[column][row] == 0;
-    changed = 1;
+    *changed = 1;
     return 1; //return true
 }
 
 int isWin(int **board, int c, int r, int *changed) {
-    if (changed == 0) {
+    if (*changed == 0) {
         return 0; //return false
     }
 
-    changed == 0;
+    *changed = 0;
     for (int i = 0; i < c; i++) {
         for (int j = 0; j < r; j++) {
             if (board[i][j] == 0)
@@ -153,4 +183,45 @@ int isFull(int **board, int c, int r) {
             return 0;
     }
     return 1;
+}
+
+int minMax(int **board, int c, int r, int *changed, int depth, int maxiPlayer) {
+    if (depth <= 0)
+        return 0;
+
+    if (isWin(board, c, r, changed) == 2)
+        return depth;
+    if (isWin(board, c, r, changed) == 1)
+        return -depth;
+    if(isFull(board, c, r))
+        return 0;
+    
+
+    int bestVal;
+    if (maxiPlayer)
+        bestVal = -1;
+    else
+        bestVal = 1;
+    
+    for (int i = 0; i < c; i++) {
+        int player;
+        if (maxiPlayer)
+            player = 2;
+        else
+            player = 1;
+
+        if(!playTurn(board, player, i, r, changed))
+            continue;
+        int v = minMax(board, c, r, changed, (depth - 1), !maxiPlayer);
+        if (maxiPlayer) {
+            if (bestVal <= v)
+                bestVal = v;
+        }
+        else {
+            if (v <= bestVal)
+                bestVal = v;
+        }
+        removeTop(board, i, r, changed);
+    }
+    return bestVal;
 }
