@@ -93,11 +93,11 @@ void playVsComp(char *board, int rows, int columns) {
             if (turn%2 == 1) {
                 int col = 1;
                 for(int r = rows - 1; r >= 0; r--){
-                    if(board[columns * r + col] == ' ')
-                    board[columns * r + col] = 'O';
+                    if(board[columns * r + col] != ' ')
+                        board[columns * (r-1) + col] = 'O';
                 }
             }   
-            while(!takeTurn(board, turn % 2, rows, columns, PIECES)){
+            while(!takeTurn(board, 0, rows, columns, PIECES)){
                 printBoard(board, rows, columns);   
                 printf("**Column full!**\n");
             }
@@ -122,7 +122,7 @@ void playVsComp(char *board, int rows, int columns) {
 void printBoard(char *board, int r, int c){
     system("clear");
     printf("\n    ****Connect Four****\n");
-
+/*
     int changed;
 
     int **b = (int **)malloc(r * sizeof(int *));
@@ -155,7 +155,7 @@ void printBoard(char *board, int r, int c){
     while(score[index][1] != maxScore) {
         index = (rand() % c);
     }
-
+*/
     for(int row = 0; row < r; row++){
         for(int col = 0; col < c; col++){
             printf("| %c ",  board[c * row + col]);
@@ -176,7 +176,7 @@ void printBoard(char *board, int r, int c){
             printf("   %d", i+1);
    }
    printf("\n");
-   printf("next best move is %d\n", index);
+   //printf("next best move is %d\n", index);
    
 }
 
@@ -261,28 +261,28 @@ int diagonalCheck(char *board, int r, int c){
    return 0;
 
 }
-
+/*
 int playTurn(int **board, int player, int column, int r, int *changed) {
     int row = 0;
     
-    while (row < r && board[column][row] == 0) {
+    while (row < r && board[row][column] == 0) {
         row++;
     }
     if (row == 0)
         return 0; //return false
-    board[row][column] = player;
+    board[row - 1][column] = player;
     *changed = 1;
     return 1; //return true
 }
 
 int removeTop(int **board, int column, int r, int *changed) {
     int row = 0;
-    while (row < r && board[column][row] == 0) {
+    while (row < r && board[row][column] == 0) {
         row++;
     }
     if (row == r) 
         return 0; //return false
-    board[column][row] == 0;
+    board[row][column] == 0;
     *changed = 1;
     return 1; //return true
 }
@@ -413,7 +413,7 @@ int minMax(int **board, int c, int r, int *changed, int depth, int maxiPlayer) {
     }
     return bestVal;
 }
-
+*/
 void clearScreen() {
 #ifdef WIN32
     system("cls");
